@@ -6,17 +6,17 @@ Furthermore, we used the pre-trained filter weights from the DeepC, which could 
 
 accuEnhancer utilized the pre-trained weights from deepHaem (https://github.com/rschwess/deepHaem), which predicts chromatin features from DNA sequence, to assist the model training process.
 
-### Contents
+## Contents
 
 * **accuEnhancer.py** : Main function of the accuEnhancer packages. 
                         The accuEnhancer package provides functions to train and to predict the enhancers from the given DNase files.
 
-### Requirements
-#### Packages
+## Requirements
+### Packages
 * Python 3.5 +
 * Keras +
 * Bedtools (Tested on 2.28.0)
-#### Input data
+### Input data
 * Pre-processed peak files
 * DNase peaks in narrowpeak format.
 
@@ -62,8 +62,13 @@ pip3 install torch
 apt-get install bedtools
 ```
 
-### Dataset
+## Dataset
 
 
-### Models
+## Models
 **./models** contains links to already trained models.
+
+
+## References
+1) Schwessinger, R., Gosden, M., Downes, D., Brown, R., Telenius, J., Teh, Y. W., ... & Hughes, J. R. (2019). DeepC: Predicting chromatin interactions using megabase scaled deep neural networks and transfer learning. bioRxiv, 724005.
+2) Kelley, D. R., Snoek, J., & Rinn, J. L. (2016). Basset: learning the regulatory code of the accessible genome with deep convolutional neural networks. Genome research, 26(7), 990-999.
