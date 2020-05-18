@@ -1,5 +1,8 @@
 # accuEnhancer
+Enhancers are one class of the regulatory elements that have been shown to act as key components to assist promoters in modulating the gene expression in living cells. accuEnhancer utilize DNase data to build a deep learning model for predicting the H3K27ac peaks as the active enhancers in selected cell types. Moreover, we also tested joint training for multiple cell types to boost the model performance. 
 
+accuEnhancer shows the general feasibility to predict the within cell type enhancer activities, which the accuracy and F1 score can achieve 0.97 and 0.9, through the proposed deep learning model. But the results of the cross cell type prediction based on the single cell type model are only adequate, where the F1 score is only around 0.5. We then attempted to further improve the performance of cross cell type predictions by integrating the training data from different cell types. The F1 score on predicting the independent cell type increased from 0.48 to 0.81 as we combined more training data from different cell types. The results demonstrated that by incorporating more datasets across cell types, the complex regulatory patterns could be captured by the deep learning models and delivered better performances. 
+Furthermore, we used the pre-trained filter weights from the DeepC, which could assist the training process and yields to a better result. Lastly, we tested the effectiveness of the model on predicting active enhancers in the VISTA database. The results indicates that accuEnhancer outperforms the previous works in predicting VISTA enhancers with the ability to make cross-cell type predictions.
 
 
 ### Contents
