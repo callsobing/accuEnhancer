@@ -14,13 +14,12 @@ accuEnhancer utilized the pre-trained weights from deepHaem (https://github.com/
 ## Requirements
 ### Dependencies
 * Python 3.5 +
-* Keras +
+* Keras
 * Tensorflow
 * h5py
 * numpy
 * argparse
-
-* Bedtools (Tested on 2.28.0)
+* Bedtools(Tested on 2.28.0)
 
 ### Input data
 * Pre-processed peak files
