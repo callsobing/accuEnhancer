@@ -41,13 +41,12 @@ parser.add_argument('--deephaem_model_path',
                     default="")
 args = parser.parse_args()
 
-checkpoint_path = "/volume/yian-storage-volume/data/enhancerPrediction/deephaem/model/model_deephaem_endpool_deepsea_model/model"
 train_file = args.in_file
 test_file = args.test_file
 trainable = args.trainable
 deephaem_model_path = args.deephaem_model_path
 # 從checkpoint中讀出資料
-reader = pywrap_tensorflow.NewCheckpointReader(checkpoint_path)
+reader = pywrap_tensorflow.NewCheckpointReader(deephaem_model_path)
 conv1_w = reader.get_tensor("Hidden_Conv1/weights")
 conv1_b = reader.get_tensor("Hidden_Conv1/Variable")
 conv2_w = reader.get_tensor("Hidden_Conv2/weights")
