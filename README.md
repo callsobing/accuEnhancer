@@ -12,10 +12,16 @@ accuEnhancer utilized the pre-trained weights from deepHaem (https://github.com/
                         The accuEnhancer package provides functions to train and to predict the enhancers from the given DNase files.
 
 ## Requirements
-### Packages
+### Dependencies
 * Python 3.5 +
 * Keras +
+* Tensorflow
+* h5py
+* numpy
+* argparse
+
 * Bedtools (Tested on 2.28.0)
+
 ### Input data
 * Pre-processed peak files
 * DNase peaks in narrowpeak format.
