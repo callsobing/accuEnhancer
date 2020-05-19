@@ -51,7 +51,7 @@ Optional arguments:
 ## Installation
 1) Download/Clone ezGeno
 ```bash
-git clone https://github.com/ailabstw/accuEnhancer.git
+git clone https://github.com/callsobing/accuEnhancer.git
 
 cd accuEnhancer
 ```
