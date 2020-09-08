@@ -1,8 +1,8 @@
-import subprocess
+from subprocess import Popen, PIPE
 import argparse
 
 parser = argparse.ArgumentParser(description="""Generate 200-bp sequences from genome""")
-parser.add_argument('--genome',help='reference genome path', required=True)
+parser.add_argument('--genome',help='reference genome file path', required=True)
 parser.add_argument('--out',help='output path of 200bp sequences from genome', required=True)
 
 args = parser.parse_args()
@@ -11,7 +11,7 @@ output_path = args.out
 
 # Build index
 cmd = f'samtools faidx {genome_path}'
-process = subprocess.Popen(args=cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+process = Popen(args=cmd, shell=True, stderr=PIPE, universal_newlines=True)
 process.wait()
 if "" == err_check:
     print(f'fasta index generated.')
@@ -27,6 +27,9 @@ chr_keys = [str(i) for i in range(1,23)] + ['X','Y']
 chr_order_idx = [i for key in chr_keys for i,item in enumerate(chr_order) if key==item]
 genome_idx_sorted = [genome_idx[i] for i in chr_order_idx]
 
+cmd = f'mkdir -p {output_path}'
+process = Popen(args=cmd, shell=True)
+
 h = open(f'{output_path}/200bp_bin.bed','w')
 for item in genome_idx_sorted:
   bed_info = item.split('\t')
@@ -38,11 +41,9 @@ for item in genome_idx_sorted:
 h.close()
 
 # Generate 200bp sequences
-cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}/200bp_bin.bed -fo {output_path}/200bp_bin.fa'
-process = subprocess.Popen(args=cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
-process.wait()
-
-if "" == err_check:
-    print(f'200-bp bins fasta file generated in {output_path}/200bp_bin.fa')
-else:
-  print(err_check)
+cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}_200bin.bed -fo {output_path}_200bin.fa'
+process = Popen(args=cmd, shell=True, stdout=PIPE, stderr=PIPE)
+#process.wait()
+out = process.communicate()
+for item in out:
+  print(item)
