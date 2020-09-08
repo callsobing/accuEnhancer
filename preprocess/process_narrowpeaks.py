@@ -3,7 +3,7 @@ import argparse
 import random
 
 
-parser = argparse.ArgumentParser(description="""Preprocess""")
+parser = argparse.ArgumentParser(description="""Preprocess narrowpeaks""")
 
 parser.add_argument('--celltype', help='celltype name', required=True)
 parser.add_argument('--h3k27ac_file', help='h3k27ac bed file path', required=True)

@@ -30,13 +30,13 @@ def get_hot_coded_seq(sequence):
     hotsequence = np.zeros((len(sequence),4))
     # set hot code 1 according to gathered sequence
     for i in range(len(sequence)):
-        if sequence[i] == 'A':
+        if sequence[i] in ['A','a']: #== 'A':
             hotsequence[i,0] = 1
-        elif sequence[i] == 'C':
+        elif sequence[i] in ['C','c']: # == 'C':
             hotsequence[i,1] = 1
-        elif sequence[i] == 'G':
+        elif sequence[i] in ['G','g']:  # == 'G':
             hotsequence[i,2] = 1
-        elif sequence[i] == 'T':
+        elif sequence[i] in ['T','t']: # == 'T':
             hotsequence[i,3] = 1
     # return the numpy array
     return hotsequence
