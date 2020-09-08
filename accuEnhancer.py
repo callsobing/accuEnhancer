@@ -223,7 +223,7 @@ if trainable == "T":
     if train_from_ckpt is not None:
         # 從 self-trained checkpoint中讀出資料
         train_from_ckpt = int(train_from_ckpt)
-        model.load_weights('../reports/data/H1/trained_%d.h5' %train_from_ckpt)
+        model.load_weights('reports/data/H1/trained_%d.h5' %train_from_ckpt)
         print('Checkpoint %d weights are loaded.' %train_from_ckpt)
     else:
         print('Train from the beginning!')
@@ -280,7 +280,7 @@ else:
         model.fit([dna_train, epi_train], y_train, epochs=2, batch_size=4000, class_weight={0: 1, 1: 2}, validation_split=0.05)
         # Save current network structure and weights
         model.save("reports/%s/trained_%s.h5" % (out_name, str(i)))
-        print('\nSave model to path: ../reports/%s/trained_%s.h5' % (out_name, str(i)))
+        print('\nSave model to path: reports/%s/trained_%s.h5' % (out_name, str(i)))
         # Evaluate the model with the metrics we defined earlier
     output_fh.close()
 
