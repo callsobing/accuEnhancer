@@ -11,8 +11,12 @@ output_path = args.out
 
 # Build index
 cmd = f'samtools faidx {genome_path}'
-process = subprocess.Popen(args=cmd, shell=True)
+process = subprocess.Popen(args=cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
 process.wait()
+if "" == err_check:
+    print(f'fasta index generated.')
+else:
+  print(err_check)
 
 # Generate .bed of 200bp
 with open(f'{genome_path}.fai','r') as h:
@@ -23,7 +27,7 @@ chr_keys = [str(i) for i in range(1,23)] + ['X','Y']
 chr_order_idx = [i for key in chr_keys for i,item in enumerate(chr_order) if key==item]
 genome_idx_sorted = [genome_idx[i] for i in chr_order_idx]
 
-h = open(f'{output_path}_200bin.bed','w')
+h = open(f'{output_path}/200bp_bin.bed','w')
 for item in genome_idx_sorted:
   bed_info = item.split('\t')
   chromosome = bed_info[0]
@@ -34,8 +38,11 @@ for item in genome_idx_sorted:
 h.close()
 
 # Generate 200bp sequences
-cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}_200bin.bed -fo {output_path}_200bin.fa'
-process = subprocess.Popen(args=cmd, shell=True)
+cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}/200bp_bin.bed -fo {output_path}/200bp_bin.fa'
+process = subprocess.Popen(args=cmd, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
 process.wait()
 
-print(f'200-bp bins fasta file generated in {output_path}_200bin.fa')
+if "" == err_check:
+    print(f'200-bp bins fasta file generated in {output_path}/200bp_bin.fa')
+else:
+  print(err_check)
