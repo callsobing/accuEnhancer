@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(description="""Preprocess narrowpeaks""")
 
 parser.add_argument('--celltype', help='celltype name', required=True)
 parser.add_argument('--h3k27ac_file', help='h3k27ac bed file path', required=True)
+parser.add_argument('--epi_file', help='epigenome peak file path', required=True)
 parser.add_argument('--output_prefix', help='output prefix name', required=True)
 parser.add_argument('--hg38_fasta_bins', help='hg38 fasta file in 200bps bins', required=True)
 parser.add_argument('--hg38_bed_bins', help='hg38 bed file in 200bps bins', required=True)
@@ -59,12 +60,13 @@ for line in h3k27ac_file_fh:
 h3k27ac_file_fh.close()
 
 # 讀入要處理的dnase peak資料 -> 和hg38 200bp bin去做overlap
+epi_file = args.epi_file
 epigenetic_list = ["dnase"]
 epi_mark_collection = {}
 for epi_mark in epigenetic_list:
     if epi_mark not in epi_mark_collection:
         epi_mark_collection[epi_mark] = {}
-    epi_file = "data/%s/%s.bed" % (epi_mark, args.celltype)
+    #epi_file = "data/%s/%s.bed" % (epi_mark, args.celltype)
     print("### Now fetching signal values from %s bed files..." % epi_mark)
     cmd = "bedtools intersect -a %s -b %s -f 0.3 -wb -wa | awk -F\"\t\" '{print $1\"\t\"$2\"\t\"$3\"\t\"$10}' >%s.200bp.bins.bed" % (hg38_bed_bins,epi_file, epi_file)
     process = subprocess.Popen(args=cmd, shell=True)

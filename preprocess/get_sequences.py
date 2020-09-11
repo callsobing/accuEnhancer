@@ -13,10 +13,10 @@ output_path = args.out
 cmd = f'samtools faidx {genome_path}'
 process = Popen(args=cmd, shell=True, stderr=PIPE, universal_newlines=True)
 process.wait()
-if "" == err_check:
-    print(f'fasta index generated.')
-else:
-  print(err_check)
+#if "" == err_check:
+#    print(f'fasta index generated.')
+#else:
+#  print(err_check)
 
 # Generate .bed of 200bp
 with open(f'{genome_path}.fai','r') as h:
@@ -41,7 +41,7 @@ for item in genome_idx_sorted:
 h.close()
 
 # Generate 200bp sequences
-cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}_200bin.bed -fo {output_path}_200bin.fa'
+cmd = f'bedtools getfasta -fi {genome_path} -bed {output_path}/200bp_bin.bed -fo {output_path}/200bp_bin.fa'
 process = Popen(args=cmd, shell=True, stdout=PIPE, stderr=PIPE)
 #process.wait()
 out = process.communicate()

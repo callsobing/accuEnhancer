@@ -3,6 +3,7 @@ import os
 from keras.layers import Dense, Activation, Flatten, Dropout, Concatenate, BatchNormalization, Convolution1D, MaxPooling1D
 from keras.optimizers import Adam
 from keras import Input, Model
+from keras.utils import multi_gpu_model
 import h5py
 import tensorflow as tf
 from keras import backend as K
@@ -215,6 +216,7 @@ pred = Activation('sigmoid')(x)
 adam = Adam(lr=0.001)
 # We add metrics to get more results you want to see
 model = Model(inputs=[inputs, epi_marks], outputs=pred)
+model = multi_gpu_model(model)
 model.compile(optimizer=adam, loss='binary_crossentropy', metrics=[accuracy_m, recall_m, precision_m, f1_m, recall_keras, precision_keras, f1_keras])
 
 
