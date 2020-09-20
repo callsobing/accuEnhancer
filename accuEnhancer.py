@@ -3,6 +3,7 @@ import os
 from keras.layers import Dense, Activation, Flatten, Dropout, Concatenate, BatchNormalization, Convolution1D, MaxPooling1D
 from keras.optimizers import Adam
 from keras import Input, Model
+from keras.utils import multi_gpu_model
 import h5py
 import tensorflow as tf
 from keras import backend as K
@@ -39,24 +40,16 @@ parser.add_argument('--test_file',
 parser.add_argument('--deephaem_model_path',
                     help='using deephaem pre-trained model weights',
                     default="")
+parser.add_argument('--train_from_ckpt',
+                    help='load from self-trained checkpoint, int number',
+                    default=None)
 args = parser.parse_args()
 
 train_file = args.in_file
 test_file = args.test_file
 trainable = args.trainable
 deephaem_model_path = args.deephaem_model_path
-# 從checkpoint中讀出資料
-reader = pywrap_tensorflow.NewCheckpointReader(deephaem_model_path)
-conv1_w = reader.get_tensor("Hidden_Conv1/weights")
-conv1_b = reader.get_tensor("Hidden_Conv1/Variable")
-conv2_w = reader.get_tensor("Hidden_Conv2/weights")
-conv2_b = reader.get_tensor("Hidden_Conv2/Variable")
-conv3_w = reader.get_tensor("Hidden_Conv3/weights")
-conv3_b = reader.get_tensor("Hidden_Conv3/Variable")
-conv4_w = reader.get_tensor("Hidden_Conv4/weights")
-conv4_b = reader.get_tensor("Hidden_Conv4/Variable")
-conv5_w = reader.get_tensor("Hidden_Conv5/weights")
-conv5_b = reader.get_tensor("Hidden_Conv5/Variable")
+train_from_ckpt = args.train_from_ckpt
 
 """ Defining initial parameters """
 out_name = args.out_name
@@ -223,37 +216,75 @@ pred = Activation('sigmoid')(x)
 adam = Adam(lr=0.001)
 # We add metrics to get more results you want to see
 model = Model(inputs=[inputs, epi_marks], outputs=pred)
+model = multi_gpu_model(model)
 model.compile(optimizer=adam, loss='binary_crossentropy', metrics=[accuracy_m, recall_m, precision_m, f1_m, recall_keras, precision_keras, f1_keras])
+
 
 if trainable == "T":
     trainable = True
+    if train_from_ckpt is not None:
+        # 從 self-trained checkpoint中讀出資料
+        train_from_ckpt = int(train_from_ckpt)
+        model.load_weights('reports/data/H1/trained_%d.h5' %train_from_ckpt)
+        print('Checkpoint %d weights are loaded.' %train_from_ckpt)
+    else:
+        print('Train from the beginning!')
 else:
     trainable = False
-    model.get_layer("conv_l1").set_weights([conv1_w, conv1_b])
-    model.get_layer("conv_l1").trainable = trainable
-    model.get_layer("conv_l2").set_weights([conv2_w, conv2_b])
-    model.get_layer("conv_l2").trainable = trainable
-    model.get_layer("conv_l3").set_weights([conv3_w, conv3_b])
-    model.get_layer("conv_l3").trainable = trainable
-    model.get_layer("conv_l4").set_weights([conv4_w, conv4_b])
-    model.get_layer("conv_l4").trainable = trainable
-    model.get_layer("conv_l5").set_weights([conv5_w, conv5_b])
-    model.get_layer("conv_l5").trainable = trainable
+    if deephaem_model_path != "":
+        # 從deephaem checkpoint中讀出資料
+        #reader = pywrap_tensorflow.NewCheckpointReader(deephaem_model_path)
+        try:
+            reader = np.load(deephaem_model_path)
+            conv1_w = reader['arr_0'] #reader.get_tensor("Hidden_Conv1/weights")
+            conv1_b = reader['arr_1'] #reader.get_tensor("Hidden_Conv1/Variable")
+            conv2_w = reader['arr_2'] # reader.get_tensor("Hidden_Conv2/weights")
+            conv2_b = reader['arr_3'] # reader.get_tensor("Hidden_Conv2/Variable")
+            conv3_w = reader['arr_4'] # reader.get_tensor("Hidden_Conv3/weights")
+            conv3_b = reader['arr_5'] # reader.get_tensor("Hidden_Conv3/Variable")
+            conv4_w = reader['arr_6'] # reader.get_tensor("Hidden_Conv4/weights")
+            conv4_b = reader['arr_7'] # reader.get_tensor("Hidden_Conv4/Variable")
+            conv5_w = reader['arr_8'] # reader.get_tensor("Hidden_Conv5/weights")
+            model.get_layer("conv_l1").set_weights([conv1_w, conv1_b])
+            model.get_layer("conv_l1").trainable = trainable
+            model.get_layer("conv_l2").set_weights([conv2_w, conv2_b])
+            model.get_layer("conv_l2").trainable = trainable
+            model.get_layer("conv_l3").set_weights([conv3_w, conv3_b])
+            model.get_layer("conv_l3").trainable = trainable
+            model.get_layer("conv_l4").set_weights([conv4_w, conv4_b])
+            model.get_layer("conv_l4").trainable = trainable
+            model.get_layer("conv_l5").set_weights([conv5_w, conv5_b])
+            model.get_layer("conv_l5").trainable = trainable
+            print("Deephaem model loaded!")
+        except:
+            assert False, 'Deephaem model loading failed! Terminate.'
 
 
 # ----- Start training!! -----
-if not os.path.exists('../reports/%s' % out_name):
-    os.makedirs('../reports/%s' % out_name)
-output_fh = open('../reports/%s/epoch_testing.out' % out_name, 'w')
-output_fh.write("#epoch\taccuracy\trecall\tprecision\tf1_score\n")
-for i in range(args.epochs):
-    print('---- Training %d iteration------------' % i)
-    model.fit([dna_train, epi_train], y_train, epochs=2, batch_size=4000, class_weight={0: 1, 1: 2}, validation_split=0.05)
-    # Save current network structure and weights
-    model.save("../reports/%s/trained_%s.h5" % (out_name, str(i)))
-    print('\nSave model to path: ../reports/%s/trained_%s.h5' % (out_name, str(i)))
-    # Evaluate the model with the metrics we defined earlier
-output_fh.close()
+if not os.path.exists('reports/%s' % out_name):
+    os.makedirs('reports/%s' % out_name)
+if train_from_ckpt is not None:
+    output_fh = open('reports/%s/epoch_testing.out' % out_name, 'a+')
+    output_fh.write("#epoch\taccuracy\trecall\tprecision\tf1_score\n")
+    for i in range(train_from_ckpt+1, args.epochs):
+        print('---- Training %d iteration------------' % i)
+        model.fit([dna_train, epi_train], y_train, epochs=2, batch_size=4000, class_weight={0: 1, 1: 2}, validation_split=0.05)
+        # Save current network structure and weights
+        model.save("reports/%s/trained_%s.h5" % (out_name, str(i)))
+        print('\nSave model to path: reports/%s/trained_%s.h5' % (out_name, str(i)))
+        # Evaluate the model with the metrics we defined earlier
+    output_fh.close()
+else:
+    output_fh = open('reports/%s/epoch_testing.out' % out_name, 'w')
+    output_fh.write("#epoch\taccuracy\trecall\tprecision\tf1_score\n")
+    for i in range(args.epochs):
+        print('---- Training %d iteration------------' % i)
+        model.fit([dna_train, epi_train], y_train, epochs=2, batch_size=4000, class_weight={0: 1, 1: 2}, validation_split=0.05)
+        # Save current network structure and weights
+        model.save("reports/%s/trained_%s.h5" % (out_name, str(i)))
+        print('\nSave model to path: reports/%s/trained_%s.h5' % (out_name, str(i)))
+        # Evaluate the model with the metrics we defined earlier
+    output_fh.close()
 
 print('\n---- Testing ------------')
 print('\nOutput checkpoint testing result------------')
@@ -280,7 +311,7 @@ true_positives = 0
 predicted_positives = 0
 truth_positives = 0
 correct_predictions = 0
-output_predict_fh = open('../reports/%s/predict.out' % out_name, 'w')
+output_predict_fh = open('reports/%s/predict.out' % out_name, 'w')
 for x, y in zip(predicts, y_test):
     output_predict_fh.write("%s\t%s\n" % (x[0], y[0]))
     if x[0] > 0.5 and y[0] > 0.5:

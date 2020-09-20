@@ -3,13 +3,15 @@ import argparse
 import random
 
 
-parser = argparse.ArgumentParser(description="""""")
+parser = argparse.ArgumentParser(description="""Preprocess narrowpeaks""")
 
 parser.add_argument('--celltype', help='celltype name', required=True)
 parser.add_argument('--h3k27ac_file', help='h3k27ac bed file path', required=True)
+parser.add_argument('--epi_file', help='epigenome peak file path', required=True)
 parser.add_argument('--output_prefix', help='output prefix name', required=True)
 parser.add_argument('--hg38_fasta_bins', help='hg38 fasta file in 200bps bins', required=True)
 parser.add_argument('--hg38_bed_bins', help='hg38 bed file in 200bps bins', required=True)
+parser.add_argument('--output_name', help='outout name', required=True)
 args = parser.parse_args()
 output_name = args.output_name
 hg38_fasta_bins = args.hg38_fasta_bins
@@ -58,14 +60,15 @@ for line in h3k27ac_file_fh:
 h3k27ac_file_fh.close()
 
 # 讀入要處理的dnase peak資料 -> 和hg38 200bp bin去做overlap
+epi_file = args.epi_file
 epigenetic_list = ["dnase"]
 epi_mark_collection = {}
 for epi_mark in epigenetic_list:
     if epi_mark not in epi_mark_collection:
         epi_mark_collection[epi_mark] = {}
-    epi_file = "/volume/yian-storage-volume/data/enhancerPrediction/%s/%s.bed" % (epi_mark, args.celltype)
+    #epi_file = "data/%s/%s.bed" % (epi_mark, args.celltype)
     print("### Now fetching signal values from %s bed files..." % epi_mark)
-    cmd = "bedtools intersect -a /volume/yian-storage-volume/data/enhancerPrediction/bed/hg38.200bp_bins.bed -b %s -f 0.3 -wb -wa | awk -F\"\t\" '{print $1\"\t\"$2\"\t\"$3\"\t\"$10}' >%s.200bp.bins.bed" % (epi_file, epi_file)
+    cmd = "bedtools intersect -a %s -b %s -f 0.3 -wb -wa | awk -F\"\t\" '{print $1\"\t\"$2\"\t\"$3\"\t\"$10}' >%s.200bp.bins.bed" % (hg38_bed_bins,epi_file, epi_file)
     process = subprocess.Popen(args=cmd, shell=True)
     process.wait()
 
@@ -77,17 +80,6 @@ for epi_mark in epigenetic_list:
         epi_mark_collection[epi_mark][key] = cols[3]
     epi_file_fh.close()
 
-
-h3k27ac_positive_bins = {}
-h3k27ac_file_fh = open("%s.200bp.bins.bed" % h3k27ac_file)
-for line in h3k27ac_file_fh:
-    line = line.rstrip()
-    cols = line.split("\t")
-    key = "%s:%s-%s" % (cols[0], cols[1], cols[2])
-    h3k27ac_positive_bins[key] = seq_fasta[key]
-    # del seq_fasta[key]
-    # seq_ids.remove(key)
-h3k27ac_file_fh.close()
 
 
 # 準備產生negative序列:
@@ -111,9 +103,12 @@ neg_validation_set = random.sample(range(1, positive_count * 5), int((positive_c
 
 selected_epigenetic_list = ["dnase"]
 
+cmd = "mkdir -p data/single_cell_type"
+subprocess.Popen(args=cmd, shell=True).wait()
+
 for selected_epi in selected_epigenetic_list:
-    output_train_dest_fh = open("/volume/yian-storage-volume/data/enhancerPrediction/single_cell_type/%s_dnase.training.dat" % args.output_name, "w")
-    output_val_dest_fh = open("/volume/yian-storage-volume/data/enhancerPrediction/single_cell_type/%s_dnase.validation.dat" % args.output_name, "w")
+    output_train_dest_fh = open("data/single_cell_type/%s_dnase.training.dat" % args.output_name, "w")
+    output_val_dest_fh = open("data/single_cell_type/%s_dnase.validation.dat" % args.output_name, "w")
     # Process and output the final result:
     print("### Now processing positive bins...")
 
@@ -132,8 +127,8 @@ for selected_epi in selected_epigenetic_list:
         if selected_epi == "dnase":
             start_lhs = start - 12 * 200
             for i in range(25):
-                start = start_lhs + i * 200
-                key_lhs = "%s:%d-%d" % (chrom, start, start + 200)
+                st = start_lhs + i * 200
+                key_lhs = "%s:%d-%d" % (chrom, st, st + 200)
                 if key_lhs in epi_mark_collection["dnase"]:
                     feature_signal += "\t%s" % epi_mark_collection["dnase"][key_lhs]
                 else:
@@ -162,8 +157,8 @@ for selected_epi in selected_epigenetic_list:
         if selected_epi == "dnase":
             start_lhs = start - 12 * 200
             for i in range(25):
-                start = start_lhs + i * 200
-                key_lhs = "%s:%d-%d" % (chrom, start, start + 200)
+                st = start_lhs + i * 200
+                key_lhs = "%s:%d-%d" % (chrom, st, st + 200)
                 if key_lhs in epi_mark_collection["dnase"]:
                     feature_signal += "\t%s" % epi_mark_collection["dnase"][key_lhs]
                 else:
