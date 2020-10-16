@@ -15,11 +15,11 @@ accuEnhancer utilized the pre-trained weights from deepHaem (https://github.com/
 ### Dependencies
 * Python 3.5 +
 * Keras
-* Tensorflow
+* Tensorflow (Tested on 1.15.0)
 * h5py
 * numpy
 * argparse
-* Bedtools(Tested on 2.28.0)
+* Bedtools (Tested on 2.28.0)
 
 ### Input data
 * Pre-processed peak files
@@ -28,33 +28,35 @@ accuEnhancer utilized the pre-trained weights from deepHaem (https://github.com/
 ## Usage
 ```bash
 usage: accuEnhancers.py  [-h help] 
-                  [--positive_training_data POSITIVE_TR_DATA] 
-                  [--negative_training_data NEGATIVE_TR_DATA]
-                  [--out_path OUT_PATH]
-                  
+                  [--in_file IN_FILE] 
+                  [--out_name OUT_NAME]
+                  [--epochs EPOCHS]
+                  [--trainable TRAINABLE]
+                  [--test_file TEST_FILE]
+                  [--deephaem_model_path DEEPHAEM_MODEL_PATH]
+                  [--train_from_ckpt TRAIN_FROM_CKPT]
+                                          
                   
 Required arguments:
-  --positive_training_data    
-                        positive training data in fasta (*.fa, *.fasta) format. 
-                        [Type: String]  
+  --in_file IN_FILE     Six column file. [<chr> <start> <end> <comma separated IDs> <raw sequence> <epi mark>].
+  --out_name OUT_NAME   Output file destination name, suffix
+  --epochs EPOCHS       Number of epochs
+    
 Optional arguments:
-  -h, --help            
-                        Show this help message and exit
-  --negative_data_method NEGATIVE_DATA_METHOD  
-                        If not given the negative training data, ezGeno will generate 
-                        negative data based on the selected methods.
-                        "random": random sampling from the human genome.
-                        "dinucl": generate negative sequence based on same dinucleotide
-                                  composition with the positive training data.
-                        [Type: String, Default:"dinucl", options: "random, dinucl"]
-  --out_path OUT_PATH   
-                        The output directory for the trained model. 
-                        [Type: String, default: "output_dir"]
+  -h, --help            show this help message and exit
+  --trainable TRAINABLE
+                        pretrined weight retrainable ("T" or "F")
+  --test_file TEST_FILE
+                        using in-file testing or specified test file
+  --deephaem_model_path DEEPHAEM_MODEL_PATH
+                        using deephaem pre-trained model weights
+  --train_from_ckpt TRAIN_FROM_CKPT
+                        load from self-trained checkpoint, int number
 ```
 
 
 ## Installation
-1) Download/Clone ezGeno
+1) Download/Clone accuEnhancer
 ```bash
 git clone https://github.com/callsobing/accuEnhancer.git
 
@@ -67,12 +69,11 @@ pip3 install torch
 apt-get install bedtools
 ```
 
-## Dataset
-
-
 ## Models
 **./models** contains links to already trained models.
 
+## Tutorial
+A step-by-step tutorial from data preparation, preprocessing to model training and testing is demonstrated in `accuEnhancer_tutorial.ipynb`. 
 
 ## References
 1) Schwessinger, R., Gosden, M., Downes, D., Brown, R., Telenius, J., Teh, Y. W., ... & Hughes, J. R. (2019). DeepC: Predicting chromatin interactions using megabase scaled deep neural networks and transfer learning. bioRxiv, 724005.

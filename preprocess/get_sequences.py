@@ -13,10 +13,6 @@ output_path = args.out
 cmd = f'samtools faidx {genome_path}'
 process = Popen(args=cmd, shell=True, stderr=PIPE, universal_newlines=True)
 process.wait()
-#if "" == err_check:
-#    print(f'fasta index generated.')
-#else:
-#  print(err_check)
 
 # Generate .bed of 200bp
 with open(f'{genome_path}.fai','r') as h:
@@ -46,4 +42,4 @@ process = Popen(args=cmd, shell=True, stdout=PIPE, stderr=PIPE)
 #process.wait()
 out = process.communicate()
 for item in out:
-  print(item)
+  print(item.decode("utf-8"))

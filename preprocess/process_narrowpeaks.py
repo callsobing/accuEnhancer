@@ -5,10 +5,10 @@ import random
 
 parser = argparse.ArgumentParser(description="""Preprocess narrowpeaks""")
 
-parser.add_argument('--celltype', help='celltype name', required=True)
+#parser.add_argument('--celltype', help='celltype name', required=True) # not used now
 parser.add_argument('--h3k27ac_file', help='h3k27ac bed file path', required=True)
 parser.add_argument('--epi_file', help='epigenome peak file path', required=True)
-parser.add_argument('--output_prefix', help='output prefix name', required=True)
+#parser.add_argument('--output_prefix', help='output prefix name', required=True) # not used now
 parser.add_argument('--hg38_fasta_bins', help='hg38 fasta file in 200bps bins', required=True)
 parser.add_argument('--hg38_bed_bins', help='hg38 bed file in 200bps bins', required=True)
 parser.add_argument('--output_name', help='outout name', required=True)
@@ -107,8 +107,8 @@ cmd = "mkdir -p data/single_cell_type"
 subprocess.Popen(args=cmd, shell=True).wait()
 
 for selected_epi in selected_epigenetic_list:
-    output_train_dest_fh = open("data/single_cell_type/%s_dnase.training.dat" % args.output_name, "w")
-    output_val_dest_fh = open("data/single_cell_type/%s_dnase.validation.dat" % args.output_name, "w")
+    output_train_dest_fh = open("data/single_cell_type/%s_dnase.training.dat" % output_name, "w")
+    output_val_dest_fh = open("data/single_cell_type/%s_dnase.validation.dat" % output_name, "w")
     # Process and output the final result:
     print("### Now processing positive bins...")
 
